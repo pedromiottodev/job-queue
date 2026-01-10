@@ -5,11 +5,37 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Job {
+  id           String   @id @default(uuid())
+  type         String
+  payload      Json
+
+  status       JobStatus @default(PENDING)
+
+  attempts     Int       @default(0)
+  maxAttempts  Int       @default(3)
+
+  availableAt  DateTime
+  lockedAt     DateTime?
+  lockedBy     String?
+
+  lastError    String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum JobStatus {
+  PENDING
+  PROCESSING
+  DONE
+  FAILED
 }
